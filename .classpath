@@ -1,11 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/java-8-openjdk-amd64">
+		<attributes>
+			<attribute name="module" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="lib" path="/home/dosclic98/Scrivania/Materiale_Uni/Terzo_anno/Primo_semestre/Progettazione e implementazione di software in rete/RPC_Server/amqp-client-5.8.0.jar">
 		<attributes>
 			<attribute name="javadoc_location" value="jar:file:/home/dosclic98/Scrivania/Materiale_Uni/Terzo_anno/Primo_semestre/Progettazione%20e%20implementazione%20di%20software%20in%20rete/RPC_Server/amqp-client-5.8.0-javadoc.jar!/"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="/home/dosclic98/Scrivania/Materiale_Uni/Terzo_anno/Primo_semestre/Progettazione e implementazione di software in rete/RPC_Server/json-20190722.jar"/>
+	<classpathentry kind="lib" path="/home/dosclic98/Scrivania/Materiale_Uni/Terzo_anno/Primo_semestre/Progettazione e implementazione di software in rete/RPC_Server/slf4j-api-1.7.6.jar"/>
+	<classpathentry kind="lib" path="/home/dosclic98/Scrivania/Materiale_Uni/Terzo_anno/Primo_semestre/Progettazione e implementazione di software in rete/RPC_Server/slf4j-simple-1.7.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
