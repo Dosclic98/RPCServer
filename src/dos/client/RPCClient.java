@@ -63,11 +63,17 @@ public class RPCClient implements AutoCloseable {
 		
 		return this.call(rqstMsgJson.toString());
 	}
-/*
-	public String makePost() {
-		
-	}
 
+	public String makePost(String acceptField, String body) throws IOException, InterruptedException {
+		JSONObject rqstMsgJson = new JSONObject();
+		rqstMsgJson = rqstMsgJson.put(ReqKey.METHOD, "POST");
+		rqstMsgJson = rqstMsgJson.put(ReqKey.ACCEPT, acceptField);
+		rqstMsgJson = rqstMsgJson.put(ReqKey.BODY, body);
+		System.out.println("Requesting: " + rqstMsgJson.toString());
+		
+		return this.call(rqstMsgJson.toString());
+	}
+/*
 	public String makePut() {
 		
 	}

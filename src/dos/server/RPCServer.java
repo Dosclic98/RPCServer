@@ -3,6 +3,7 @@ package dos.server;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
@@ -88,16 +89,14 @@ public class RPCServer {
 		HttpURLConnection conn = null;
 		if(msgJson.getString(ReqKey.METHOD).equals("GET")) {
 			System.out.println("GET Received");
-			String query = msgJson.getString(ReqKey.QUERY);
+			String query = URLEncoder.encode(msgJson.getString(ReqKey.QUERY), StandardCharsets.UTF_8.toString()).replace("+", "%20");
 			String urlString = connectionURL + "?" +  query;
 			url = new URL(urlString);
 			conn = (HttpURLConnection) url.openConnection();
 			conn.setRequestMethod("GET");
 			conn.setRequestProperty("Accept", msgJson.getString(ReqKey.ACCEPT));
-			//conn.setDoInput(true);
-			//conn.setDoOutput(false);
-			// conn.setRequestProperty("Accept-Charset", "UTF-8");
-			// conn.connect();
+			
+			conn.setRequestProperty("Accept-Charset", "UTF-8");
 			
 			responseCode = conn.getResponseCode();
 			responseBody = getResponseBody(conn);
@@ -108,7 +107,28 @@ public class RPCServer {
 			response.put("resMsg", responseMessage);
 			
 		} else if(msgJson.getString(ReqKey.METHOD).equals("POST")) {
+			System.out.println("POST Received");
+			String urlString = connectionURL;
+			url = new URL(urlString);
+			conn = (HttpURLConnection) url.openConnection();
+			conn.setRequestMethod("POST");
+			conn.setRequestProperty("Accept", msgJson.getString(ReqKey.ACCEPT));
 			
+			conn.setRequestProperty("Accept-Charset", "UTF-8");
+			conn.setDoOutput(true);
+			
+			try(OutputStream os = conn.getOutputStream()) {
+				byte[] input = msgJson.getString(ReqKey.BODY).getBytes("utf-8");
+				os.write(input, 0, input.length);           
+			}
+			
+			responseCode = conn.getResponseCode();
+			responseBody = getResponseBody(conn);
+			String responseMessage = conn.getResponseMessage();
+			response = new JSONObject();
+			response.put("resCode", responseCode);
+			response.put("resBody", responseBody);
+			response.put("resMsg", responseMessage);
 		} else if(msgJson.getString(ReqKey.METHOD).equals("PUT")) {
 			
 		} else if(msgJson.getString(ReqKey.METHOD).equals("DELETE")) {
@@ -120,7 +140,10 @@ public class RPCServer {
 
 	private static String getResponseBody(HttpURLConnection conn) {
 		try {
-			BufferedReader in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			BufferedReader in = null;
+			if(conn.getResponseCode() < HttpURLConnection.HTTP_BAD_REQUEST) {
+				in = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+			} else in = new BufferedReader(new InputStreamReader(conn.getErrorStream()));
 			String inputLine;
 			StringBuffer response = new StringBuffer();
 
@@ -131,7 +154,7 @@ public class RPCServer {
 			
 			return response.toString();
 		} catch(IOException e) {
-			return "No body";
+			return "Error retriving body";
 		}
 	}
 	
