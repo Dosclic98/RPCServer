@@ -15,6 +15,7 @@ import org.json.JSONObject;
 import com.rabbitmq.client.*;
 
 import dos.keys.ReqKey;
+import dos.keys.ResKey;
 
 public class RPCServer {
 	
@@ -89,7 +90,7 @@ public class RPCServer {
 		HttpURLConnection conn = null;
 		if(msgJson.getString(ReqKey.METHOD).equals("GET")) {
 			System.out.println("GET Received");
-			String query = URLEncoder.encode(msgJson.getString(ReqKey.QUERY), StandardCharsets.UTF_8.toString()).replace("+", "%20");
+			String query = URLEncoder.encode(msgJson.getString(ReqKey.QUERY), StandardCharsets.UTF_8.toString()).replace("\n", "+");
 			String urlString = connectionURL + "?" +  query;
 			url = new URL(urlString);
 			conn = (HttpURLConnection) url.openConnection();
@@ -102,16 +103,18 @@ public class RPCServer {
 			responseBody = getResponseBody(conn);
 			String responseMessage = conn.getResponseMessage();
 			response = new JSONObject();
-			response.put("resCode", responseCode);
-			response.put("resBody", responseBody);
-			response.put("resMsg", responseMessage);
+			response.put(ResKey.CODE, responseCode);
+			response.put(ResKey.BODY, responseBody);
+			response.put(ResKey.MSG, responseMessage);
 			
-		} else if(msgJson.getString(ReqKey.METHOD).equals("POST")) {
-			System.out.println("POST Received");
+		} else if(msgJson.getString(ReqKey.METHOD).equals("POST") || 
+				  msgJson.getString(ReqKey.METHOD).equals("PUT") ||
+				  msgJson.getString(ReqKey.METHOD).equals("DELETE")) {
+			System.out.println(msgJson.getString(ReqKey.METHOD) + " Received");
 			String urlString = connectionURL;
 			url = new URL(urlString);
 			conn = (HttpURLConnection) url.openConnection();
-			conn.setRequestMethod("POST");
+			conn.setRequestMethod(msgJson.getString(ReqKey.METHOD));
 			conn.setRequestProperty("Accept", msgJson.getString(ReqKey.ACCEPT));
 			
 			conn.setRequestProperty("Accept-Charset", "UTF-8");
@@ -126,14 +129,10 @@ public class RPCServer {
 			responseBody = getResponseBody(conn);
 			String responseMessage = conn.getResponseMessage();
 			response = new JSONObject();
-			response.put("resCode", responseCode);
-			response.put("resBody", responseBody);
-			response.put("resMsg", responseMessage);
-		} else if(msgJson.getString(ReqKey.METHOD).equals("PUT")) {
-			
-		} else if(msgJson.getString(ReqKey.METHOD).equals("DELETE")) {
-			
-		}
+			response.put(ResKey.CODE, responseCode);
+			response.put(ResKey.BODY, responseBody);
+			response.put(ResKey.MSG, responseMessage);
+		} 
 		
 		return response.toString();
 	}
