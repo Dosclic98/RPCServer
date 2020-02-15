@@ -36,7 +36,7 @@ public class ThreadResManager extends Thread {
 	private int qos = 2;
 	
 	public ThreadResManager(Object lock, JSONObject firstMessage) throws MqttException {
-		clientReq = new ArrayBlockingQueue<>(1);
+		clientReq = new ArrayBlockingQueue<>(2);
 		this.lock = lock;
 		this.firstMessage = firstMessage;
 		replyTopicName = firstMessage.getString(ReqKey.REPLYTO);
@@ -63,18 +63,19 @@ public class ThreadResManager extends Thread {
 				try {
 					System.out.println("Waiting for requests");
 					message = clientReq.poll(timeout, TimeUnit.MILLISECONDS);
-					if(message != null) {
-						System.out.println("New request arrived: sending request");
+					synchronized(lock) {
+						if(message == null) {
+							MqttRPCServer.activeThreads.remove(replyTopicName);
+							System.out.println("Timeout expired, stopping thread managing: " + replyTopicName);
+						} else {
+							System.out.println("New request arrived: sending request");
+						}
 					}
 				} catch (InterruptedException e) {
 					e.printStackTrace();
 				}
 			}
 			if(message == null) {
-				synchronized(lock) {
-					MqttRPCServer.activeThreads.remove(replyTopicName);
-					System.out.println("Timeout expired, stopping thread managing: " + replyTopicName);
-				}
 				try {
 					this.terminate();
 				} catch (MqttException e) {

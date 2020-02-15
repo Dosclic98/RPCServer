@@ -36,7 +36,7 @@ public class ClientRespCallback implements MqttCallback {
 		if(jsonMsg.getString(ReqKey.CORRID).equals(callerClient.corrId)) {
 			jsonMsg.remove(ReqKey.CORRID);
 			callerClient.response.offer(jsonMsg.toString());
-		} else System.out.println("Messaggio scartato siccome ritardatario");
+		}
 		
 	}
 
